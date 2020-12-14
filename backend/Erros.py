@@ -1,0 +1,2 @@
+class RequestFormateError(Exception):
+    pass
