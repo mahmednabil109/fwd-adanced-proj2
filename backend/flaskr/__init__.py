@@ -10,7 +10,7 @@ from models import (
     get_all_categories, new_question , 
     delete_from_db , 
     get_all_questions,
-    get_question_like
+    get_question_likes
 )
 
 
