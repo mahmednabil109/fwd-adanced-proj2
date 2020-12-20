@@ -22,7 +22,7 @@ def create_app(test_config=None):
   # setting up the cors for all origins
   cors = CORS(app, resources = {r"/*":{"origins" : "*"}})
 
-  #global variables
+  # global variables
   OBJECTS_PER_PAGE = 10
   DEFAULT_CATEGORY = 1
 
