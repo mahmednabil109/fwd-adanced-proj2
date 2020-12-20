@@ -2,6 +2,7 @@ import os
 import random
 from flask import Flask, request, abort, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.exceptions import HTTPException
 from Erros import *
 from flask_cors import CORS
 from models import (
@@ -70,6 +71,8 @@ def create_app(test_config=None):
         abort(404)
       current_categories = paginate_results(request, categories)
       return jsonify({'categories': current_categories})
+    except HTTPException:
+      abort(404)
     except Exception:
       abort(500)
 
@@ -77,13 +80,9 @@ def create_app(test_config=None):
   @app.route('/questions', methods=['GET'])
   def get_questions():
     try:
-      category, questions, categories = '', '', ''
-      try:
-        category = request.args.get('category', DEFAULT_CATEGORY, type=str)
-        questions = get_questions_by_category(category)
-        categories = serialize(get_all_categories())
-      except Exception:
-        abort(422)
+      category = request.args.get('category', DEFAULT_CATEGORY, type=str)
+      questions = get_questions_by_category(category)
+      categories = serialize(get_all_categories())
       if not len(questions) or not len(categories):
         abort(404)
       questions_size = len(questions)
@@ -94,6 +93,8 @@ def create_app(test_config=None):
         'categories': categories,
         'current_category': category,
       })
+    except HTTPException:
+      abort(404)
     except Exception:
       abort(500)
 
@@ -109,6 +110,8 @@ def create_app(test_config=None):
     try:
       questions = get_questions_by_category(category_id + 1)
       question_size = len(questions)
+      if question_size == 0:
+        abort(404)
       print(question_size)
       questions = paginate_results(request, questions)
       return jsonify({
@@ -116,6 +119,8 @@ def create_app(test_config=None):
         'total_questions': question_size,
         'current_category': category_id,
       })
+    except HTTPException:
+      abort(404)
     except Exception:
       abort(500)
 
@@ -130,10 +135,11 @@ def create_app(test_config=None):
     try:
       delete_from_db(question_id)
       return jsonify({
-        'success': True
+        'success': True,
+        'id': question_id
       })
     except Exception:
-      abort(500)
+      abort(404)
 
   '''
   @TODO:
@@ -143,14 +149,18 @@ def create_app(test_config=None):
   '''
 
   def create_question(body):
+    id = ''
     try:
       try:
-        add_to_db(new_question(body))
+        id = add_to_db(new_question(body))
       except RequestFormateError:
         abort(422)
       return jsonify({
-        'success': True
+        'success': True,
+        'id': id
       })
+    except HTTPException:
+      abort(422)
     except Exception:
       abort(500)
 
@@ -164,20 +174,22 @@ def create_app(test_config=None):
   @app.route('/questions', methods=['POST'])
   def search_question():
     try:
-      body = ''
+      body, questions = '', ''
       try:
         body = request.get_json()
         if 'searchTerm' not in body:
           return create_question(body)
+        questions = serialize(get_question_like(body))
       except Exception:
         abort(422)
-      questions = serialize(get_question_like(body))
 
       return jsonify({
         'questions': questions,
         'total_questions': len(questions),
         'current_category': body.get('currentCategory')
       })
+    except HTTPException:
+      abort(422)
     except Exception:
       abort(500)
 
@@ -199,7 +211,7 @@ def create_app(test_config=None):
       except Exception:
         abort(422)
       questions = serialize(get_questions_by_category(int(category.get('id')) + 1)\
-        if category['type'] != 'click' else get_all_questions())
+        if category.get('type') != 'click' else get_all_questions())
       random.shuffle(questions)
       result = None
 
@@ -211,6 +223,8 @@ def create_app(test_config=None):
       return jsonify({
         'question': result,
       })
+    except HTTPException:
+      abort(422)
     except Exception:
       abort(500)
 
@@ -248,7 +262,7 @@ def create_app(test_config=None):
     return jsonify({
       "success": False,
       "status_code": 500,
-      "msg": "the server has some issues"
+      "msg": "the server has some issues with the request"
     }), 500
 
   return app

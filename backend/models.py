@@ -49,6 +49,7 @@ def delete_from_db(question_id):
 def add_to_db(obj):
   db.session.add(obj)
   db.session.commit()
+  return obj.id
 
 # this function is for selecting the questions by category
 def get_questions_by_category(category_id):
