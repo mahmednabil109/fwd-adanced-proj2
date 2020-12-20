@@ -25,8 +25,8 @@ def create_app(test_config=None):
   cors = CORS(app, resources={r"/*": {"origins": "*"}})
 
   # global variables
-  OBJECTS_PER_PAGE = 10
-  DEFAULT_CATEGORY = 1
+  OBJECTS_PER_PAGE = int(os.getenv('OBJECTS_PER_PAGE',10))
+  DEFAULT_CATEGORY = int(os.getenv('DEFAULT_CATEGORY',1))
 
   # defining the after_request to allow the Access-Control properties
   @app.after_request
@@ -243,12 +243,12 @@ def create_app(test_config=None):
       "msg": "the entry is not processable"
     }), 422
 
-  @app.errorhandler(500)
-  def unprocessable(error):
-    return jsonify({
-      "success": False,
-      "status_code": 500,
-      "msg": "the server has some issues"
-    }), 500
+  # @app.errorhandler(500)
+  # def unprocessable(error):
+  #   return jsonify({
+  #     "success": False,
+  #     "status_code": 500,
+  #     "msg": "the server has some issues"
+  #   }), 500
 
   return app

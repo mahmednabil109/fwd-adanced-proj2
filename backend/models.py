@@ -5,10 +5,13 @@ from Erros import *
 import json
 
 
-database_name = "trivia"
+DATABASE_NAME = os.getenv("database_name", "trivia")
+DATABASE_USER = os.getenv('DATABASE_USER', 'postgres')
+DATABASE_PASS = os.getenv('DATABASE_PASS', 'postgres')
+DATABASE_HOST = os.getenv('DATABASE_HOST', 'localhost:5432')
 db_formate = "postgres://{}:{}@{}/{}"
-database_path = db_formate.format('postgres', 'postgres', 'localhost:5432', database_name)
-
+database_path = db_formate.format(DATABASE_USER, DATABASE_PASS, DATABASE_HOST, DATABASE_NAME)
+print(database_path)
 db = SQLAlchemy()
 
 '''
