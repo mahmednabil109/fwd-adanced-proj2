@@ -1,14 +1,14 @@
-import os , random
-from flask import Flask, request, abort, jsonify , send_file
+import os, random
+from flask import Flask, request, abort, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from Erros import *
 from flask_cors import CORS
-import random
 from models import ( 
-    setup_db, add_to_db , 
-    get_questions_by_category , 
-    get_all_categories, new_question , 
-    delete_from_db , 
+    setup_db, add_to_db, 
+    get_questions_by_category, 
+    get_all_categories, 
+    new_question, 
+    delete_from_db, 
     get_all_questions,
     get_question_likes
 )
